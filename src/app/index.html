@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookseerr - Book Request Management</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="login-page" class="page active">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <h1><i class="fas fa-book-open"></i> Bookseerr</h1>
+                    <p>Your personal book request management system</p>
+                </div>
+                <form id="login-form" class="login-form">
+                    <div class="form-group">
+                        <label for="username">Username or Email</label>
+                        <input type="text" id="username" name="username" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full-width">Sign In</button>
+                </form>
+                <div class="login-footer">
+                    <p>Demo credentials: admin/admin or reader/reader</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app" class="page">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-book-open"></i> Bookseerr</h2>
+            </div>
+            <div class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#discover" class="nav-item" data-page="discover">
+                    <i class="fas fa-search"></i>
+                    <span>Discover</span>
+                </a>
+                <a href="#requests" class="nav-item" data-page="requests">
+                    <i class="fas fa-list-ul"></i>
+                    <span>Requests</span>
+                </a>
+                <a href="#settings" class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <i class="fas fa-user"></i>
+                    <span id="current-user">Admin</span>
+                </div>
+                <button id="logout-btn" class="btn btn--secondary btn--sm">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <div id="dashboard-content" class="content-page active">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <p>Welcome to your Bookseerr dashboard</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="total-books">5</h3>
+                            <p>Total Books</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="available-books">2</h3>
+                            <p>Available</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="pending-requests">1</h3>
+                            <p>Pending Requests</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="total-users">2</h3>
+                            <p>Users</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-section">
+                    <h2>Recent Requests</h2>
+                    <div class="recent-requests" id="recent-requests">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discover Page -->
+            <div id="discover-content" class="content-page">
+                <div class="page-header">
+                    <h1>Discover Books</h1>
+                    <div class="search-bar">
+                        <input type="text" id="book-search" class="form-control" placeholder="Search for books...">
+                        <button class="btn btn--primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <select id="category-filter" class="form-control">
+                        <option value="">All Categories</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Science Fiction">Science Fiction</option>
+                        <option value="Fiction">Fiction</option>
+                        <option value="Adventure">Adventure</option>
+                        <option value="Cyberpunk">Cyberpunk</option>
+                        <option value="Thriller">Thriller</option>
+                    </select>
+                    <select id="status-filter" class="form-control">
+                        <option value="">All Status</option>
+                        <option value="available">Available</option>
+                        <option value="requested">Requested</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+
+                <div class="books-grid" id="books-grid">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+
+            <!-- Requests Page -->
+            <div id="requests-content" class="content-page">
+                <div class="page-header">
+                    <h1>Requests</h1>
+                    <p>Manage book requests</p>
+                </div>
+
+                <div class="requests-list" id="requests-list">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings-content" class="content-page">
+                <div class="page-header">
+                    <h1>Settings</h1>
+                    <p>Configure your Bookseerr instance</p>
+                </div>
+
+                <div class="settings-sections">
+                    <div class="settings-card">
+                        <h3><i class="fas fa-server"></i> Readarr Configuration</h3>
+                        <div class="form-group">
+                            <label for="readarr-url">Server URL</label>
+                            <input type="text" id="readarr-url" class="form-control" value="http://localhost:8787">
+                        </div>
+                        <div class="form-group">
+                            <label for="readarr-api-key">API Key</label>
+                            <input type="password" id="readarr-api-key" class="form-control" value="mock-readarr-api-key">
+                        </div>
+                        <div class="form-group">
+                            <label for="readarr-root-folder">Root Folder</label>
+                            <input type="text" id="readarr-root-folder" class="form-control" value="/books">
+                        </div>
+                        <button class="btn btn--primary">Test Connection</button>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3><i class="fas fa-download"></i> QBittorrent Configuration</h3>
+                        <div class="form-group">
+                            <label for="qb-url">Server URL</label>
+                            <input type="text" id="qb-url" class="form-control" value="http://localhost:8080">
+                        </div>
+                        <div class="form-group">
+                            <label for="qb-username">Username</label>
+                            <input type="text" id="qb-username" class="form-control" value="admin">
+                        </div>
+                        <div class="form-group">
+                            <label for="qb-password">Password</label>
+                            <input type="password" id="qb-password" class="form-control" value="adminpass">
+                        </div>
+                        <button class="btn btn--primary">Test Connection</button>
+                    </div>
+
+                    <div class="settings-card" id="admin-settings">
+                        <h3><i class="fas fa-users-cog"></i> User Management</h3>
+                        <div class="users-list" id="users-list">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Book Modal -->
+    <div id="book-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-book-title">Book Title</h2>
+                <button id="close-modal" class="btn-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="book-details">
+                    <img id="modal-book-image" src="" alt="Book cover" class="book-cover-large">
+                    <div class="book-info">
+                        <p><strong>Author:</strong> <span id="modal-book-author"></span></p>
+                        <p><strong>Published:</strong> <span id="modal-book-date"></span></p>
+                        <p><strong>Pages:</strong> <span id="modal-book-pages"></span></p>
+                        <p><strong>ISBN:</strong> <span id="modal-book-isbn"></span></p>
+                        <p><strong>Categories:</strong> <span id="modal-book-categories"></span></p>
+                        <div class="book-status" id="modal-book-status"></div>
+                        <p id="modal-book-description"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="request-book-btn" class="btn btn--primary">
+                    <i class="fas fa-plus"></i>
+                    Request Book
+                </button>
+                <button id="cancel-request-btn" class="btn btn--secondary hidden">
+                    <i class="fas fa-times"></i>
+                    Cancel Request
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

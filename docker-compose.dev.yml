@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  bookseerr-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: bookseerr-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - JWT_SECRET=dev-secret-key
+      - JWT_EXPIRES_IN=3600
+      - DATABASE_URL=sqlite:/app/data/bookseerr-dev.db
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+      - bookseerr_dev_data:/app/data
+    networks:
+      - bookseerr_dev_network
+
+volumes:
+  bookseerr_dev_data:
+
+networks:
+  bookseerr_dev_network:
+    driver: bridge
