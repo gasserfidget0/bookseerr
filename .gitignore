@@ -44,3 +44,24 @@ yarn-error.log*
 
 # OS
 Thumbs.db
+
+# Local data and backups
+/data/
+/backup/
+*.bak
+cookies.txt
+
+# Environment variables
+.env
+.env.*
+
+# Local data and backups
+/data/
+/backup/
+*.bak
+*.zip
+cookies.txt
+
+# Environment variables
+.env
+.env.*

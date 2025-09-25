@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
   env: {
     JWT_SECRET: process.env.JWT_SECRET,
     JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '3600',
@@ -12,10 +9,13 @@ const nextConfig = {
     QBITTORRENT_URL: process.env.QBITTORRENT_URL,
     QBITTORRENT_USERNAME: process.env.QBITTORRENT_USERNAME,
     QBITTORRENT_PASSWORD: process.env.QBITTORRENT_PASSWORD,
+    PLEX_URL: process.env.PLEX_URL,
+    PLEX_TOKEN: process.env.PLEX_TOKEN,
   },
   images: {
     domains: ['books.google.com', 'covers.openlibrary.org'],
   },
+  output: 'standalone',
 }
 
 module.exports = nextConfig

@@ -1,4 +1,3 @@
-# Use official Node.js runtime as base image
 FROM node:18-alpine AS base
 
 # Install dependencies only when needed
@@ -19,9 +18,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-ENV NEXT_TELEMETRY_DISABLED 1
-
 # Build Next.js application
 RUN npm run build
 
@@ -30,25 +26,22 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy built application
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Create database directory
-RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
+# Copy public folder
+COPY --from=builder /app/public ./public
 
 USER nextjs
 
-EXPOSE 5055
+EXPOSE 3000
 
-ENV PORT 5055
+ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-# Start the application
 CMD ["node", "server.js"]

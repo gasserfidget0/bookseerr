@@ -1,18 +1,19 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
+import { Header } from '@/components/layout/Header';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Bookseerr - Book Request Management',
-  description: 'A modern book request management system for your digital library',
-  keywords: ['books', 'request', 'management', 'library', 'digital', 'overseerr'],
-  authors: [{ name: 'Bookseerr' }],
-  creator: 'Bookseerr',
-  robots: 'index, follow',
-  viewport: 'width=device-width, initial-scale=1',
+  title: 'Bookseerr',
+  description: 'Your personal book management system',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -22,9 +23,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} min-h-screen bg-background text-foreground antialiased`}>
+      <body className={inter.className}>
         <Providers>
-          {children}
+          <Header />
+          <main className="container mx-auto p-6">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>

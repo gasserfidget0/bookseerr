@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   bookseerr:
@@ -8,66 +7,19 @@ services:
     container_name: bookseerr
     restart: unless-stopped
     ports:
-      - "5055:5055"
-    environment:
-      - NODE_ENV=production
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-3600}
-      - DATABASE_URL=sqlite:/app/data/bookseerr.db
-      - READARR_URL=${READARR_URL}
-      - READARR_API_KEY=${READARR_API_KEY}
-      - QBITTORRENT_URL=${QBITTORRENT_URL}
-      - QBITTORRENT_USERNAME=${QBITTORRENT_USERNAME}
-      - QBITTORRENT_PASSWORD=${QBITTORRENT_PASSWORD}
+      - "5057:3000"
+    env_file:
+      - ./.env
     volumes:
-      - bookseerr_data:/app/data
+      # Using your standard config path for easy backups
+      - /mnt/docker_configs/bookseerr:/app/data
       - /etc/localtime:/etc/localtime:ro
     networks:
-      - bookseerr_network
-
-  # Optional: Include Readarr if not already running
-  readarr:
-    image: lscr.io/linuxserver/readarr:develop
-    container_name: bookseerr_readarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-    volumes:
-      - readarr_config:/config
-      - readarr_books:/books
-      - readarr_downloads:/downloads
-    ports:
-      - "8787:8787"
-    restart: unless-stopped
-    networks:
-      - bookseerr_network
-
-  # Optional: Include QBittorrent if not already running  
-  qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
-    container_name: bookseerr_qbittorrent
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-      - WEBUI_PORT=8080
-    volumes:
-      - qbittorrent_config:/config
-      - readarr_downloads:/downloads
-    ports:
-      - "8080:8080"
-    restart: unless-stopped
-    networks:
-      - bookseerr_network
+      - proxy_default
 
 volumes:
   bookseerr_data:
-  readarr_config:
-  readarr_books:
-  readarr_downloads:
-  qbittorrent_config:
 
 networks:
-  bookseerr_network:
-    driver: bridge
+  proxy_default:
+    external: true
