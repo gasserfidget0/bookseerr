@@ -1,18 +1,18 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { BookCard } from './BookCard';
+import type { DatabaseBook } from '@/types/api';
 
-// This function will fetch our data
 const fetchBooks = async () => {
   const response = await fetch('/api/books', {
     method: 'GET',
-    credentials: 'include', // <-- THIS IS THE FIX: It sends the auth cookie
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
   });
   if (!response.ok) {
-    // We'll make the error more specific
     throw new Error(`Failed with status: ${response.status}`);
   }
   const data = await response.json();
@@ -23,7 +23,7 @@ const fetchBooks = async () => {
 };
 
 export function BookList() {
-  const { data: books, isLoading, error } = useQuery({
+  const { data: books, isLoading, error } = useQuery<DatabaseBook[]>({
     queryKey: ['books'],
     queryFn: fetchBooks,
   });
@@ -40,11 +40,11 @@ export function BookList() {
     <div className="bg-gray-800/50 rounded-lg p-6">
       <h2 className="text-2xl font-bold mb-4">My Books</h2>
       {books && books.length > 0 ? (
-        <ul>
-          {books.map((book: any) => (
-            <li key={book.id}>{book.title}</li>
+        <div className="space-y-4">
+          {books.map((book) => (
+            <BookCard key={book.id} book={book} />
           ))}
-        </ul>
+        </div>
       ) : (
         <p className="text-gray-400">No books found yet. Add one to get started!</p>
       )}
