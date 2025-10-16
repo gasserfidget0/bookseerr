@@ -1,15 +1,17 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/auth-provider';
 import { BookList } from '@/components/books/BookList';
 import { AddBookForm } from '@/components/books/AddBookForm';
+import { SearchResultList } from '@/components/books/SearchResultList'; // Import the new component
 
 export default function HomePage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
+  const [searchResults, setSearchResults] = useState<any[]>([]); // State to hold search results
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -27,7 +29,13 @@ export default function HomePage() {
 
   return (
     <div>
-      <AddBookForm />
+      {/* The form will update the searchResults state via this function */}
+      <AddBookForm onSearchResults={setSearchResults} />
+
+      {/* The new component to display the results */}
+      <SearchResultList results={searchResults} />
+
+      {/* The existing list of books already in your library */}
       <BookList />
     </div>
   );

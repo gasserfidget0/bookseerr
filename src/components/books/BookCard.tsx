@@ -3,9 +3,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { DatabaseBook } from '@/types/api';
 import { toast } from '@/components/ui/toast';
+import Image from 'next/image'; // Import the Next.js Image component
 
 interface BookCardProps {
-  book: DatabaseBook;
+  book: DatabaseBook & { image_url?: string }; // Update the type to include image_url
 }
 
 const deleteBookMutationFn = async (bookId: number) => {
@@ -64,8 +65,22 @@ export function BookCard({ book }: BookCardProps) {
   };
 
   return (
-    <div className="bg-gray-800/50 rounded-lg p-4 flex justify-between items-center">
-      <div>
+    <div className="bg-gray-800/50 rounded-lg p-4 flex items-center space-x-4">
+      {/* --- THE FIX: Display the book cover --- */}
+      <div className="flex-shrink-0 w-16 h-24 bg-gray-700 rounded-md overflow-hidden">
+        {book.image_url ? (
+          <Image
+            src={book.image_url}
+            alt={`Cover for ${book.title}`}
+            width={64}
+            height={96}
+            className="object-cover w-full h-full"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs text-center">No Image</div>
+        )}
+      </div>
+      <div className="flex-grow">
         <h3 className="text-lg font-bold text-white">{book.title}</h3>
         <p className="text-sm text-gray-400">by {book.author}</p>
       </div>

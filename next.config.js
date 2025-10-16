@@ -13,7 +13,14 @@ const nextConfig = {
     PLEX_TOKEN: process.env.PLEX_TOKEN,
   },
   images: {
-    domains: ['books.google.com', 'covers.openlibrary.org'],
+    // --- THE FIX ---
+    // Added the Amazon domain for Goodreads images
+    domains: [
+      'books.google.com', 
+      'covers.openlibrary.org', 
+      'artworks.thetvdb.com',
+      'images-na.ssl-images-amazon.com'
+    ],
   },
   output: 'standalone',
 }

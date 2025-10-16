@@ -30,13 +30,16 @@ export function initializeDatabase() {
     );
   `);
 
-  // --- DATABASE MIGRATION LOGIC ---
+  // --- MIGRATION LOGIC ---
   const columns = db.pragma('table_info(books)') as { name: string }[];
-  const hasForeignIdColumn = columns.some(col => col.name === 'foreign_book_id');
-
-  if (!hasForeignIdColumn) {
+  if (!columns.some(col => col.name === 'foreign_book_id')) {
     console.log('Migration: Adding foreign_book_id column to books table...');
     db.exec('ALTER TABLE books ADD COLUMN foreign_book_id TEXT');
+  }
+  // --- NEW MIGRATION FOR IMAGE URL ---
+  if (!columns.some(col => col.name === 'image_url')) {
+    console.log('Migration: Adding image_url column to books table...');
+    db.exec('ALTER TABLE books ADD COLUMN image_url TEXT');
   }
   // --- END MIGRATION LOGIC ---
 
@@ -96,8 +99,9 @@ export function getAllBooks(): DatabaseBook[] {
   const stmt = db.prepare('SELECT * FROM books ORDER BY created_at DESC');
   return stmt.all() as DatabaseBook[];
 }
-export function createBook(book: { title: string; author: string; status: string; foreign_book_id?: string }): DatabaseBook {
-  const stmt = db.prepare(`INSERT INTO books (title, author, status, foreign_book_id) VALUES (@title, @author, @status, @foreign_book_id)`);
+// Updated createBook to accept image_url
+export function createBook(book: { title: string; author: string; status: string; foreign_book_id?: string; image_url?: string }): DatabaseBook {
+  const stmt = db.prepare(`INSERT INTO books (title, author, status, foreign_book_id, image_url) VALUES (@title, @author, @status, @foreign_book_id, @image_url)`);
   const result = stmt.run(book);
   return getBookById(result.lastInsertRowid as number)!;
 }

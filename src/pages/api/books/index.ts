@@ -20,14 +20,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
-      const { title, author } = req.body;
+      // --- THE FIX ---
+      // Now we also accept image_url
+      const { title, author, foreign_book_id, image_url } = req.body;
+      
       if (!title || !author) {
         return res.status(400).json({ error: 'Title and author are required' });
       }
-      const newBook = createBook({ title, author, status: 'wanted' });
+
+      const newBook = createBook({ 
+        title, 
+        author, 
+        status: 'wanted',
+        foreign_book_id: foreign_book_id || null,
+        image_url: image_url || null // Save the image URL
+      });
+      
       return res.status(201).json({ success: true, data: newBook });
     } catch (error) {
-      console.error(error);
+      console.error('Create book error:', error);
       return res.status(500).json({ error: 'Failed to create book' });
     }
   }
