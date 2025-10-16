@@ -30,6 +30,10 @@ ENV NODE_ENV production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# --- THE FIX ---
+# Create the data directory and set its ownership BEFORE copying app files
+RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data
+
 # Copy built application
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static

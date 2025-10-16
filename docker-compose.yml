@@ -1,4 +1,3 @@
-
 services:
   bookseerr:
     build:
@@ -11,12 +10,13 @@ services:
     env_file:
       - ./.env
     volumes:
-      # Using your standard config path for easy backups
-      - /mnt/docker_configs/bookseerr:/app/data
+      # Use a named volume for the database to avoid host permission issues
+      - bookseerr_data:/app/data
       - /etc/localtime:/etc/localtime:ro
     networks:
       - proxy_default
 
+# Define the named volume
 volumes:
   bookseerr_data:
 

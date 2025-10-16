@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import bcrypt from 'bcryptjs';
 import type { DatabaseUser, DatabaseBook } from '@/types/api';
 
 export type { DatabaseUser };
@@ -28,6 +29,34 @@ export function initializeDatabase() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  // --- DATABASE MIGRATION LOGIC ---
+  const columns = db.pragma('table_info(books)') as { name: string }[];
+  const hasForeignIdColumn = columns.some(col => col.name === 'foreign_book_id');
+
+  if (!hasForeignIdColumn) {
+    console.log('Migration: Adding foreign_book_id column to books table...');
+    db.exec('ALTER TABLE books ADD COLUMN foreign_book_id TEXT');
+  }
+  // --- END MIGRATION LOGIC ---
+
+  // --- DEFAULT ADMIN USER CREATION ---
+  const adminUser = getUserByUsername('admin');
+  if (!adminUser) {
+    console.log('Creating default admin user...');
+    const salt = bcrypt.genSaltSync(12);
+    const passwordHash = bcrypt.hashSync('admin', salt);
+    createUser({
+      username: 'admin',
+      email: 'admin@bookseerr.local',
+      password_hash: passwordHash,
+      role: 'admin',
+      avatar: null,
+      permissions: null
+    });
+  }
+  // --- END DEFAULT ADMIN USER CREATION ---
+
   console.log('Database initialized');
 }
 
@@ -59,12 +88,16 @@ export function getBookById(id: number): DatabaseBook | null {
   const stmt = db.prepare('SELECT * FROM books WHERE id = ?');
   return (stmt.get(id) as DatabaseBook | undefined) || null;
 }
+export function getBookByForeignId(foreignId: string): DatabaseBook | null {
+  const stmt = db.prepare('SELECT * FROM books WHERE foreign_book_id = ?');
+  return (stmt.get(foreignId) as DatabaseBook | undefined) || null;
+}
 export function getAllBooks(): DatabaseBook[] {
   const stmt = db.prepare('SELECT * FROM books ORDER BY created_at DESC');
   return stmt.all() as DatabaseBook[];
 }
-export function createBook(book: Omit<DatabaseBook, 'id' | 'created_at'>): DatabaseBook {
-  const stmt = db.prepare(`INSERT INTO books (title, author, status) VALUES (@title, @author, @status)`);
+export function createBook(book: { title: string; author: string; status: string; foreign_book_id?: string }): DatabaseBook {
+  const stmt = db.prepare(`INSERT INTO books (title, author, status, foreign_book_id) VALUES (@title, @author, @status, @foreign_book_id)`);
   const result = stmt.run(book);
   return getBookById(result.lastInsertRowid as number)!;
 }
