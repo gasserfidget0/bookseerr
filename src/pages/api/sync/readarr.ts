@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getReadarrBooks } from '@/lib/readarr';
 import { authenticateUser } from '@/lib/auth';
-import { getBookByForeignId, createBook } from '@/lib/database';
+import { getReadarrBooks } from '@/lib/readarr';
+import { createBook, getBookByForeignId, updateBookStatus } from '@/lib/database';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const user = await authenticateUser(req, res);
@@ -9,35 +9,68 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
+  // Only admins can sync
+  if (user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', ['POST']);
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+
   try {
+    console.log('Starting Readarr library sync...');
     const readarrBooks = await getReadarrBooks();
-    let newBooksAdded = 0;
+    
+    if (!Array.isArray(readarrBooks)) {
+      return res.status(500).json({ error: 'Invalid Readarr response' });
+    }
+
+    let syncedCount = 0;
+    let updatedCount = 0;
 
     for (const book of readarrBooks) {
-      if (!book || !book.id || !book.title) continue; // Skip invalid book entries
+      const foreignBookId = book.foreignBookId || book.id?.toString();
+      
+      if (!foreignBookId) {
+        console.warn('Book has no ID:', book);
+        continue;
+      }
 
-      const existingBook = getBookByForeignId(String(book.id));
-
-      if (!existingBook) {
+      const existing = getBookByForeignId(foreignBookId);
+      
+      if (existing) {
+        // Update status based on Readarr state
+        const newStatus = book.grabbed ? 'downloading' : (book.monitored ? 'wanted' : 'unmonitored');
+        updateBookStatus(existing.id, newStatus);
+        updatedCount++;
+      } else {
+        // Create new book entry
         createBook({
-          title: book.title,
-          // Safer way to access the author name
-          author: book.author?.authorName || 'Unknown Author',
-          status: 'wanted',
-          foreign_book_id: String(book.id),
+          title: book.title || 'Unknown',
+          author: book.authorName || book.author?.authorName || 'Unknown Author',
+          status: book.grabbed ? 'downloading' : 'wanted',
+          foreign_book_id: foreignBookId,
+          image_url: book.remoteCover || null,
         });
-        newBooksAdded++;
+        syncedCount++;
       }
     }
 
+    console.log(`Sync complete: ${syncedCount} new books, ${updatedCount} updated`);
+
     return res.status(200).json({
       success: true,
-      message: `Sync complete. Added ${newBooksAdded} new books.`
+      message: 'Library synced successfully',
+      stats: {
+        totalBooks: readarrBooks.length,
+        newBooksAdded: syncedCount,
+        booksUpdated: updatedCount,
+      },
     });
-
   } catch (err: any) {
-    console.error('[Readarr Sync Error]: Full error object:', JSON.stringify(err, null, 2));
-    const errorMessage = err.cause?.code || err.message || 'An unknown fetch error occurred.';
-    return res.status(500).json({ success: false, error: errorMessage });
+    console.error('Sync error:', err);
+    return res.status(500).json({ error: err.message });
   }
 }
